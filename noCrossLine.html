@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        .dot {
+            z-index: 1;
+            height: 4px;
+            width: 4px;
+            position: absolute;
+            background-color: #000000;
+        }
+
+        .line {
+            z-index: 0;
+            height: 2px;
+            width: 2px;
+            position: absolute;
+            background-color: #888888;
+        }
+    </style>
+    <title>不交叉连线</title>
+</head>
+<body>
+<div id="board"></div>
+
+<script>
+    var DotGroup = function (width, height, len) {
+        this.width = width;
+        this.height = height;
+        this.len = len;
+        this.set = new Set();
+        this.random = function (max) {
+            return Math.round(Math.random() * max)
+        }
+        this.getGroup = function () {
+            var widthList = []
+            var getWidth = this.random.bind(this, this.width);
+            for (var i = 0; i < this.len; i++) {
+                widthList.push(getWidth())
+            }
+
+            var getHeight = this.random.bind(this, this.height);
+            for (var i = 0; i < this.len; i++) {
+                while (this.set.size == i) {
+                    this.set.add([widthList[i], getHeight()])
+                }
+            }
+            return this.set
+        }
+    };
+
+    var Graphics = function (boardId) {
+        this.board = document.getElementById(boardId);
+        this.board.style.width = document.body.scrollWidth;
+        this.board.style.height = document.body.scrollHeight;
+        this.drawDot = function (x, y) {
+            //画点
+            var oDiv = document.createElement('div');
+            oDiv.className = "dot";
+            oDiv.style.left = x - 2 + 'px';
+            oDiv.style.top = y - 2 + 'px';
+            this.board.appendChild(oDiv);
+            return oDiv;
+        };
+        this.drawLinePoint = function (x, y) {
+            //画线上的点
+            var oDiv = document.createElement('div');
+            oDiv.className = "line";
+            oDiv.style.left = x - 1 + 'px';
+            oDiv.style.top = y - 1 + 'px';
+            return oDiv;
+        };
+        this.drawLine = function (dot1, dot2) {
+            //画一条线段的方法。(x1,y1),(x2,y2)分别是线段的起点终点
+            var x1 = dot1[0], y1=dot1[1], x2=dot2[0], y2=dot2[1]
+            var drawPoint = this.drawLinePoint;
+            var x = x2 - x1;//宽
+            var y = y2 - y1;//高
+            var frag = document.createDocumentFragment();
+            if (Math.abs(y) > Math.abs(x)) {//那个边更长，用那边来做画点的依据（就是下面那个循环），如果不这样，当是一条垂直线或水平线的时候，会画不出来
+                if (y > 0)//正着画线是这样的
+                    for (var i = 0; i < y; i++) {
+                        var width = x / y * i;//x/y是直角两个边长的比，根据这个比例，求出新坐标的位置
+                        frag.appendChild(drawPoint(width + x1, i + y1));
+                    }
+                else if (y < 0) {//有时候是倒着画线的
+                    for (var i = 0; i > y; i--) {
+                        var width = x / y * i;
+                        frag.appendChild(drawPoint(width + x1, i + y1));
+                    }
+                }//end if
+            }
+            else {
+
+                if (x > 0)//正着画线是这样的
+                    for (var i = 0; i < x; i++) {
+                        var height = y / x * i;
+                        frag.appendChild(drawPoint(i + x1, height + y1));
+                    }
+                else if (x < 0) {//有时候是倒着画线的
+                    for (var i = 0; i > x; i--) {
+                        var height = y / x * i;
+                        frag.appendChild(drawPoint(i + x1, height + y1));
+                    }
+                }//end if
+
+            }
+            this.board.appendChild(frag);
+        };
+    };
+
+
+    var Picture = function (group) {
+        this.group = group;
+        this.farthest = [document.body.scrollWidth, document.body.scrollHeight]
+
+        this.getLen2Origin = function (x, y) {
+            return Math.sqrt(x * x + y * y)
+        }
+
+        this.getSlope = function ([x1,y1], [x2,y2]) {
+            return (y1 - y2) / (x1 - x2)
+        }
+
+        this.getFirstDot = function () {
+            var self = this
+            var firstDot = {len: this.getLen2Origin.apply(this, this.farthest), dot: firstDot}
+            this.group.forEach(function (d) {
+                var len = getLen2Origin.apply(self, d);
+                if ( len < firstDot.len) {
+                    firstDot = {len:len, dot:d}
+                }
+            })
+            return firstDot.dot
+        }
+
+        this.start = function () {
+            var first = this.getFirstDot()
+            return first
+        }
+
+    }
+
+    window.onload = function () {
+        console.log("load...")
+        var g = new Graphics('board');
+        var height = document.body.scrollHeight;
+        var width = document.body.scrollWidth;
+        var group = new DotGroup(width, height, 50).getGroup()
+        var lastDot = false
+        group.forEach(function (dot) {
+            g.drawDot.apply(g,dot)
+            if (lastDot){
+                g.drawLine(lastDot, dot)
+            }
+            lastDot = dot
+        })
+
+    }
+</script>
+</body>
+</html>

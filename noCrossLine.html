@@ -73,7 +73,7 @@
         };
         this.drawLine = function (dot1, dot2) {
             //画一条线段的方法。(x1,y1),(x2,y2)分别是线段的起点终点
-            var x1 = dot1[0], y1=dot1[1], x2=dot2[0], y2=dot2[1]
+            var x1 = dot1[0], y1 = dot1[1], x2 = dot2[0], y2 = dot2[1]
             var drawPoint = this.drawLinePoint;
             var x = x2 - x1;//宽
             var y = y2 - y1;//高
@@ -111,47 +111,52 @@
     };
 
 
-    var Picture = function (group) {
+    var SlopeDraw = function (group) {
         this.group = group;
-        this.farthest = [document.body.scrollWidth, document.body.scrollHeight]
+        this.drawQueue = [];
 
-        this.getLen2Origin = function (x, y) {
-            return Math.sqrt(x * x + y * y)
+        this.getSlope = function (x, y) {
+            return (y + 1) / (x + 1)
         }
 
-        this.getSlope = function ([x1,y1], [x2,y2]) {
-            return (y1 - y2) / (x1 - x2)
-        }
-
-        this.getFirstDot = function () {
-            var self = this
-            var firstDot = {len: this.getLen2Origin.apply(this, this.farthest), dot: firstDot}
+        this.getDrawQueue = function () {
+            var self = this;
             this.group.forEach(function (d) {
-                var len = getLen2Origin.apply(self, d);
-                if ( len < firstDot.len) {
-                    firstDot = {len:len, dot:d}
+                var slope = self.getSlope.apply(self, d);
+                d[2] = slope
+                if (self.drawQueue.length == 0) {
+                    self.drawQueue.push(d)
                 }
-            })
-            return firstDot.dot
-        }
+                for (var i = 0; i < self.drawQueue.length; i++) {
+                    if (self.drawQueue[i][2] < slope) {
+                        self.drawQueue.splice(i, 0, d);
+                        break;
+                    }
+                }
+                if (self.drawQueue[self.drawQueue.length-1][2] > slope) {
+                    self.drawQueue.push(d)
+                }
 
-        this.start = function () {
-            var first = this.getFirstDot()
-            return first
+            })
+            return this.drawQueue
         }
+        return this
 
     }
 
     window.onload = function () {
-        console.log("load...")
         var g = new Graphics('board');
         var height = document.body.scrollHeight;
         var width = document.body.scrollWidth;
         var group = new DotGroup(width, height, 50).getGroup()
+
+        var f1 = new SlopeDraw(group);
+        var g1 = f1.getDrawQueue()
+
         var lastDot = false
-        group.forEach(function (dot) {
-            g.drawDot.apply(g,dot)
-            if (lastDot){
+        g1.forEach(function (dot) {
+            g.drawDot.apply(g, dot)
+            if (lastDot) {
                 g.drawLine(lastDot, dot)
             }
             lastDot = dot

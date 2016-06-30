@@ -56,6 +56,7 @@
     console.log(list)
     draw(list)
     //    insertion_sort(list)
+    var timer = 0
 
     function insertion_sort(list) {
         var len = list.length;
@@ -64,11 +65,15 @@
             var key = list[i];
             while (j >= 0 && list[j] > key) {
                 list[j + 1] = list[j];
-                draw(list)
+                timer =+ 500;
+                setTimeout(draw.bind(this, list.slice(0, len)), timer)
+//                draw(list)
                 j--
             }
             list[j + 1] = key
-            draw(list)
+            timer =+ 500;
+            setTimeout(draw.bind(this, list.slice(0, len)), timer)
+//            draw(list)
         }
     }
 

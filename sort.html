@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        .dot {
+            z-index: 1;
+            height: 4px;
+            width: 4px;
+            position: absolute;
+            background-color: #000000;
+        }
+
+        .line {
+            z-index: 0;
+            height: 2px;
+            width: 2px;
+            position: absolute;
+            background-color: #888888;
+        }
+    </style>
+    <title>插入排序</title>
+</head>
+<body>
+<span id="list"></span>
+<canvas id="myCanvas" width="1000" height="500"></canvas>
+<input type="button" id="insert" value="插入排序"/>
+
+<script>
+
+    var c = document.getElementById("myCanvas");
+    var cxt = c.getContext("2d");
+    cxt.fillStyle = "#FF0000";
+    cxt.fillRect(0, 500, 20, -475);
+
+
+
+    function draw(list) {
+        list.forEach(
+                function (height, index) {
+                    height = height * 4
+                    cxt.fillStyle = "#888888";
+                    cxt.fillRect(index * 20, 500, 20, -height);
+                    cxt.fillStyle = "#FFFFFF";
+                    cxt.fillRect(index * 20, 500 - height, 20, -500 + height);
+                }
+        )
+
+    }
+
+    var list = [];
+    for (var i = 0; i < 50; i++) {
+        list.push(Math.round(Math.random() * 100))
+    }
+    document.getElementById("list").innerHTML = list.toString()
+    console.log(list)
+    draw(list)
+    //    insertion_sort(list)
+
+    function insertion_sort(list) {
+        var len = list.length;
+        for (var i = 1; i < len; i++) {
+            var j = i - 1;
+            var key = list[i];
+            while (j >= 0 && list[j] > key) {
+                list[j + 1] = list[j];
+                draw(list)
+                j--
+            }
+            list[j + 1] = key
+            draw(list)
+        }
+    }
+
+    document.getElementById("insert").onclick = insertion_sort.bind(this, list)
+</script>
+</body>
+</html>

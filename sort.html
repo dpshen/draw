@@ -11,19 +11,20 @@
 </div>
 <div>
     <input type="button" id="insert" value="插入排序"/>
+    <input type="button" id="quick" value="快速排序"/>
 </div>
 
 <script>
     var list = [],
-            len = 30,
+            len = 25,
             timer = 0,
-            delay = 50;
+            width = 20,
+            delay = 100;
 
     for (var i = 0; i < len; i++) {
         list.push(Math.round(Math.random() * 400))
     }
     document.getElementById("list").innerHTML = list.toString()
-    console.log(list)
     draw(list)
 
     var c = document.getElementById("myCanvas");
@@ -31,31 +32,26 @@
 
 
     function draw(list, redindex, key) {
+        console.log(list.toString())
         timer = timer + delay;
         setTimeout(
                 function () {
-                    console.log(new Date());
+                    key = key ? -key : 0;
                     list.forEach(
                             function (height, index) {
                                 if (redindex == index) {
                                     cxt.fillStyle = "#FF0000";
+                                    cxt.fillRect(index * width, 500, width, -height);
+                                    cxt.fillStyle = "#000000";
+                                    cxt.fillRect(index * width, 500, width, key);
                                 } else {
                                     cxt.fillStyle = "#888888";
+                                    cxt.fillRect(index * width, 500, width, -height);
                                 }
-                                cxt.fillRect(index * 20, 500, 20, -height);
                                 cxt.fillStyle = "#FFFFFF";
-                                cxt.fillRect(index * 20, 500 - height, 20, -500 + height);
+                                cxt.fillRect(index * width, 500 - height, width, -500 + height);
                             }
                     )
-                    if (key) {
-                        cxt.fillStyle = "#000000";
-                        cxt.fillRect(len * 20, 500, 20, -key);
-                        cxt.fillStyle = "#FFFFFF";
-                        cxt.fillRect(len* 20, 500 - key, 20, -500 + key);
-                    } else {
-                        cxt.fillStyle = "#FFFFFF";
-                        cxt.fillRect(len* 20, 500 , 20, -500 );
-                    }
                 }, new Number(timer)
         )
 
@@ -77,7 +73,43 @@
         }
     }
 
-    document.getElementById("insert").onclick = insertion_sort.bind(this, list)
+    function quick_sort(list) {
+        var len = list.length;
+        var partition = function (list, low, high) {
+
+            var pivot = list[high];
+            var i = low - 1;
+            var tmp;
+            for (var j = low; j < high; ++j) {
+                if (list[j] < pivot) {
+                    tmp = list[++i];
+                    list[i] = list[j];
+                    list[j] = tmp;
+                    draw(list.slice(0, len), j)
+                }
+            }
+            tmp = list[i + 1];
+            list[i + 1] = list[high];
+            list[high] = tmp;
+            draw(list.slice(0, len), i);
+            if (low < i) {
+                console.log(low, i)
+                partition(list, low, i);
+            }
+            if (i + 1 < high) {
+                console.log(i+1, high)
+                partition(list, i + 1, high);
+            }
+
+        }
+
+        partition(list, 0, len - 1)
+
+    }
+
+
+    document.getElementById("insert").onclick = insertion_sort.bind(this, list.slice(0, list.length))
+    document.getElementById("quick").onclick = quick_sort.bind(this, list.slice(0, list.length))
 </script>
 </body>
 </html>

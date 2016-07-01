@@ -2,78 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <style type="text/css">
-        .dot {
-            z-index: 1;
-            height: 4px;
-            width: 4px;
-            position: absolute;
-            background-color: #000000;
-        }
-
-        .line {
-            z-index: 0;
-            height: 2px;
-            width: 2px;
-            position: absolute;
-            background-color: #888888;
-        }
-    </style>
-    <title>插入排序</title>
+    <title>排序</title>
 </head>
 <body>
 <span id="list"></span>
-<canvas id="myCanvas" width="1000" height="500"></canvas>
-<input type="button" id="insert" value="插入排序"/>
+<div>
+    <canvas id="myCanvas" width="1200" height="500"></canvas>
+</div>
+<div>
+    <input type="button" id="insert" value="插入排序"/>
+</div>
 
 <script>
+    var list = [],
+            len = 30,
+            timer = 0,
+            delay = 50;
 
-    var c = document.getElementById("myCanvas");
-    var cxt = c.getContext("2d");
-    cxt.fillStyle = "#FF0000";
-    cxt.fillRect(0, 500, 20, -475);
-
-
-
-    function draw(list) {
-        list.forEach(
-                function (height, index) {
-                    height = height * 4
-                    cxt.fillStyle = "#888888";
-                    cxt.fillRect(index * 20, 500, 20, -height);
-                    cxt.fillStyle = "#FFFFFF";
-                    cxt.fillRect(index * 20, 500 - height, 20, -500 + height);
-                }
-        )
-
-    }
-
-    var list = [];
-    for (var i = 0; i < 50; i++) {
-        list.push(Math.round(Math.random() * 100))
+    for (var i = 0; i < len; i++) {
+        list.push(Math.round(Math.random() * 400))
     }
     document.getElementById("list").innerHTML = list.toString()
     console.log(list)
     draw(list)
+
+    var c = document.getElementById("myCanvas");
+    var cxt = c.getContext("2d");
+
+
+    function draw(list, redindex, key) {
+        timer = timer + delay;
+        setTimeout(
+                function () {
+                    console.log(new Date());
+                    list.forEach(
+                            function (height, index) {
+                                if (redindex == index) {
+                                    cxt.fillStyle = "#FF0000";
+                                } else {
+                                    cxt.fillStyle = "#888888";
+                                }
+                                cxt.fillRect(index * 20, 500, 20, -height);
+                                cxt.fillStyle = "#FFFFFF";
+                                cxt.fillRect(index * 20, 500 - height, 20, -500 + height);
+                            }
+                    )
+                    if (key) {
+                        cxt.fillStyle = "#000000";
+                        cxt.fillRect(len * 20, 500, 20, -key);
+                        cxt.fillStyle = "#FFFFFF";
+                        cxt.fillRect(len* 20, 500 - key, 20, -500 + key);
+                    } else {
+                        cxt.fillStyle = "#FFFFFF";
+                        cxt.fillRect(len* 20, 500 , 20, -500 );
+                    }
+                }, new Number(timer)
+        )
+
+    }
+
     //    insertion_sort(list)
-    var timer = 0
 
     function insertion_sort(list) {
-        var len = list.length;
         for (var i = 1; i < len; i++) {
             var j = i - 1;
             var key = list[i];
             while (j >= 0 && list[j] > key) {
                 list[j + 1] = list[j];
-                timer =+ 500;
-                setTimeout(draw.bind(this, list.slice(0, len)), timer)
-//                draw(list)
+                draw(list.slice(0, len), j, key)
                 j--
             }
             list[j + 1] = key
-            timer =+ 500;
-            setTimeout(draw.bind(this, list.slice(0, len)), timer)
-//            draw(list)
+            draw(list.slice(0, len))
         }
     }
 

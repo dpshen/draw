@@ -10,6 +10,7 @@
     <canvas id="myCanvas" width="1200" height="500"></canvas>
 </div>
 <div>
+    <input type="button" id="reset" value="复位"/>
     <input type="button" id="insert" value="插入排序"/>
     <input type="button" id="quick" value="快速排序"/>
 </div>
@@ -30,9 +31,13 @@
     var c = document.getElementById("myCanvas");
     var cxt = c.getContext("2d");
 
+    function reset() {
+        timer = 0
+        draw(list)
+    }
+
 
     function draw(list, redindex, key) {
-        console.log(list.toString())
         timer = timer + delay;
         setTimeout(
                 function () {
@@ -93,11 +98,9 @@
             list[high] = tmp;
             draw(list.slice(0, len), i);
             if (low < i) {
-                console.log(low, i)
                 partition(list, low, i);
             }
             if (i + 1 < high) {
-                console.log(i+1, high)
                 partition(list, i + 1, high);
             }
 
@@ -108,8 +111,13 @@
     }
 
 
-    document.getElementById("insert").onclick = insertion_sort.bind(this, list.slice(0, list.length))
-    document.getElementById("quick").onclick = quick_sort.bind(this, list.slice(0, list.length))
+    document.getElementById("reset").onclick = reset.bind(this)
+    document.getElementById("insert").onclick = function (){
+        insertion_sort(list.slice(0, list.length))
+    }
+    document.getElementById("quick").onclick = function () {
+        quick_sort(list.slice(0, list.length))
+    }
 </script>
 </body>
 </html>

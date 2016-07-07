@@ -13,6 +13,7 @@
     <input type="button" id="reset" value="复位"/>
     <input type="button" id="insert" value="插入排序"/>
     <input type="button" id="quick" value="快速排序"/>
+    <input type="button" id="heap" value="堆排序"/>
 </div>
 
 <script>
@@ -83,25 +84,30 @@
         var partition = function (list, low, high) {
 
             var pivot = list[high];
-            var i = low - 1;
+            var i = low;
             var tmp;
-            for (var j = low; j < high; ++j) {
-                if (list[j] < pivot) {
-                    tmp = list[++i];
-                    list[i] = list[j];
-                    list[j] = tmp;
-                    draw(list.slice(0, len), j)
+            for (var j = low; j < high; j++) {
+                if (list[j] < pivot ) {
+                    if (i < j){
+                        tmp = list[i];
+                        list[i] = list[j];
+                        list[j] = tmp;
+                    }
+                    i += 1;
                 }
+                draw(list.slice(0, len), j, pivot)
             }
-            tmp = list[i + 1];
-            list[i + 1] = list[high];
-            list[high] = tmp;
-            draw(list.slice(0, len), i);
-            if (low < i) {
-                partition(list, low, i);
+            if (i < high){
+                tmp = list[i];
+                list[i] = list[high];
+                list[high] = tmp;
             }
-            if (i + 1 < high) {
-                partition(list, i + 1, high);
+            draw(list.slice(0, len), i, pivot);
+            if (low < (i-1)) {
+                partition(list, low, i-1);
+            }
+            if (i+1 < high) {
+                partition(list, i, high);
             }
 
         }
@@ -109,14 +115,59 @@
         partition(list, 0, len - 1)
 
     }
+    
+    function heap_sort(list) {
+        var len = list.length;
+
+        var swap = function (list, l, r) {
+            var tmp = list[r];
+            list[r] = list[l];
+            list[l] = tmp;
+        }
+        var adjust_heap = function (list, parent, len){
+            var l = 2 * parent + 1,
+                r = 2 * (parent + 1),
+                    largest = parent;
+
+            if (parent <= Math.trunc(len/2)){
+                if (l < len && list[l] > list[parent] ){
+                    largest = l
+                }
+                if (r < len && list[r] > list[largest] ){
+                    largest = r
+                }
+                if (largest != parent){
+                    swap(list, largest, parent);
+                    draw(list.slice(0, list.length), largest, list[parent]);
+                    adjust_heap(list, largest, len);
+                }
+            }
+        }
+        
+        var build_heap = function (list, len) {
+            for (var i = Math.trunc(len/2); i >= 0; i--){
+                adjust_heap(list, i, len)
+            }
+        }
+
+        build_heap(list, len);
+        for (var i = (len-1); i>0; i--){
+            swap(list, 0, i);
+            adjust_heap(list, 0, i);
+            draw(list.slice(0, list.length), i, list[i]);
+        }
+    }
 
 
     document.getElementById("reset").onclick = reset.bind(this)
-    document.getElementById("insert").onclick = function (){
+    document.getElementById("insert").onclick = function () {
         insertion_sort(list.slice(0, list.length))
     }
     document.getElementById("quick").onclick = function () {
         quick_sort(list.slice(0, list.length))
+    }
+    document.getElementById("heap").onclick = function () {
+        heap_sort(list.slice(0, list.length))
     }
 </script>
 </body>
